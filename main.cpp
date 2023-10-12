@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 int main() {
 
@@ -9,7 +10,9 @@ int main() {
 
     // Rendering Code
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    std::ofstream img_file;
+    img_file.open("test.ppm");
+    img_file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
@@ -21,9 +24,8 @@ int main() {
             int ig = static_cast<int>(255.999 * g);
             int ib = static_cast<int>(255.999 * b);
             
-            std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+            img_file << ir << ' ' << ig << ' ' << ib << '\n';
         }
-
-
     }
+    img_file.close();
 }
