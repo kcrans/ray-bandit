@@ -21,9 +21,9 @@ int main() {
             auto g = double(j) / (image_height - 1);
             auto b = 0;
 
-            int ir = static_cast<int>(255.999 * r);
-            int ig = static_cast<int>(255.999 * g);
-            int ib = static_cast<int>(255.999 * b);
+            int ir = static_cast<int>(255.999 * r); // convert 0.0-1.0 to 0-255
+            int ig = static_cast<int>(255.999 * g); // 1*255.999 casted to an int will
+            int ib = static_cast<int>(255.999 * b); // become 255
             
             img_file << ir << ' ' << ig << ' ' << ib << '\n';
         }
