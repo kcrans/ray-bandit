@@ -27,7 +27,7 @@ int main() {
     auto focal_length = 1.0;
     // Viewport heights and widths are real-valued
     // The aspect ratio is based off the calulated pixel aspect ratio
-    auto viewport_height = 2.0; // Arbitray value
+    auto viewport_height = 2.0; // Arbitrary value
     auto viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
     point3 camera_center = point3(0, 0, 0);
 
