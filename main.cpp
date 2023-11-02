@@ -16,7 +16,8 @@ int main(int argc, char *argv[]) {
 
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width  = 400;
-    cam.sample_size = 100;
+    cam.sample_size  = 100;
+    cam.max_depth    = 50;
 
     cam.render(world);
 /*
