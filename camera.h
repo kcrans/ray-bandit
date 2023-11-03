@@ -6,8 +6,16 @@
 #include "color.h"
 #include "hittable.h"
 
+#ifdef __clang__
+#define STBIWDEF static inline
+#endif
+#define STB_IMAGE_WRITE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <iostream>
 #include <fstream>
+#include <cstdint>
 
 class camera {
     public:
@@ -21,6 +29,9 @@ class camera {
         img_file.open("test1.ppm");
         img_file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+        uint8_t* img_rgb = new uint8_t[image_width*image_height*3];
+
+        int count = 0;
         for (int j = 0; j < image_height; ++j) {
             std::clog << "\rCurrent Scanline: " << j << '/' << image_height - 1 << std::flush;
             for (int i = 0; i < image_width; ++i) {
@@ -29,9 +40,18 @@ class camera {
                     ray r = get_ray(i, j);
                     pixel_color += ray_color(r, max_depth, world);
                 }
-                write_color(img_file, pixel_color, sample_size);
+                uint8_t rgb[3]; 
+                write_color(img_file, pixel_color, sample_size, rgb);
+
+                img_rgb[count++] = rgb[0];
+                img_rgb[count++] = rgb[1];
+                img_rgb[count++] = rgb[2];
+
             }
         }
+
+        stbi_write_jpg("test.jpg", image_width, image_height, 3, img_rgb, 100);
+        delete[] img_rgb;
         img_file.close();
         std::clog << "\rDone.                    \n";
     }
