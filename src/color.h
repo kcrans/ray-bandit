@@ -13,6 +13,8 @@ inline double linear_to_gamma(double linear_component) {
     // Encode our color in a gamma-compressed
     // gamma = 2.2 in this case
     return std::pow(linear_component, 1.0 / 2.2);
+    // Alternative, faster operation at the expense of accuracy
+    // return sqrt(linear_component)
 }
 
 void write_color(std::ostream &out, color pixel_color, int samples_per_pixel, uint8_t* rgb) {

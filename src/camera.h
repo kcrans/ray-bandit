@@ -4,7 +4,7 @@
 #include "rtcommon.h"
 
 #include "color.h"
-#include "hittable.h"
+#include "scene_objects.h"
 
 #ifdef __clang__
 #define STBIWDEF static inline
@@ -23,7 +23,7 @@ class camera {
     int    image_width  = 100; // default width pixel count
     int    sample_size  = 10;  // number of random samples for each pixel
     int       max_depth = 10;  // max number of times a ray can bounce
-    void render(const hittable& world) {
+    void render(const scene_object& world) {
         initialize();
         std::ofstream img_file;
         img_file.open("./images/test1.ppm");
@@ -111,7 +111,7 @@ class camera {
         return (rand_x * pixel_delta_u) + (rand_y * pixel_delta_v); 
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world) const {
+    color ray_color(const ray& r, int depth, const scene_object& world) const {
         
         // if we've exceeded the depth limit, no more light is propogated
         if (depth <= 0) 

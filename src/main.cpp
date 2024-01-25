@@ -1,13 +1,13 @@
 #include "rtcommon.h"
 
 #include "camera.h"
-#include "hittable_list.h"
+#include "scene_objects_list.h"
 #include "sphere.h"
 
 #include <string>
 
 int main(int argc, char *argv[]) {
-    hittable_list world;
+    scene_objects_list world;
     // Generate one spehere in the center of the screen
     world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
     // Generate a spehere that acts as the 'land' in the image

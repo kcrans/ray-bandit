@@ -1,7 +1,7 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
+#ifndef SCENE_OBJECTS_LIST_H
+#define SCENE_OBJECTS_LIST_H
 
-#include "hittable.h"
+#include "scene_objects.h"
 
 #include <memory>
 #include <vector>
@@ -9,16 +9,16 @@
 using std::shared_ptr;
 using std::make_shared;
 
-class hittable_list : public hittable {
+class scene_objects_list : public scene_object {
     public:
-    std::vector<shared_ptr<hittable>> objects;
+    std::vector<shared_ptr<scene_object>> objects;
 
-    hittable_list() {}
-    hittable_list(shared_ptr<hittable> object) { add(object); }
+    scene_objects_list() {}
+    scene_objects_list(shared_ptr<scene_object> object) { add(object); }
 
     void clear() { objects.clear(); }
 
-    void add(shared_ptr<hittable> object) {
+    void add(shared_ptr<scene_object> object) {
 	    objects.push_back(object);
     }
 

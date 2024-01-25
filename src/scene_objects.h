@@ -1,5 +1,5 @@
-#ifndef HITTABLE_H
-#define HITTABLE_H
+#ifndef SCENE_OBJECTS_H
+#define SCENE_OBJECTS_H
 
 #include "interval.h"
 #include "ray.h"
@@ -21,9 +21,10 @@ class hit_record {
     }
 };
 
-class hittable {
+class scene_object {
+    // Abstract class which represents objects in the scene such as spheres, triangles, etc...
     public:
-    virtual ~hittable() = default;
+    virtual ~scene_object() = default;
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 };

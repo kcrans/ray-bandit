@@ -1,10 +1,10 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "hittable.h"
+#include "scene_objects.h"
 #include "vec3.h"
 
-class sphere : public hittable {
+class sphere : public scene_object {
     public:
     sphere(point3 _center, double _radius) : center(_center), radius(_radius) {}
 
