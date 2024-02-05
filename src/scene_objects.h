@@ -4,10 +4,14 @@
 #include "interval.h"
 #include "ray.h"
 
+class material; // Declaration of a class 'material'. Solves circular reference problem.
+
 class hit_record {
+    // Class which allows us to send a bunch of arguements grouped together to other functions
     public:
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat;
     double t;
     bool front_face;
 

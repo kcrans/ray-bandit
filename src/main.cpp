@@ -1,26 +1,55 @@
 #include "rtcommon.h"
 
 #include "camera.h"
+#include "color.h"
 #include "scene_objects_list.h"
+#include "material.h"
 #include "sphere.h"
 
 #include <string>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 int main(int argc, char *argv[]) {
+    
+    std::string filename;
+    std::cout << "Enter filename to save render as:" << std::endl;
+    std::getline(std::cin, filename);
+    if (filename.empty()) {
+        // Use current data and time as a filename if none was given
+        auto current_time = std::chrono::system_clock::now();
+        auto current_time_formated = std::chrono::system_clock::to_time_t(current_time);
+        std::stringstream date_stream;
+        date_stream << std::put_time(std::localtime(&current_time_formated), "%Y-%m-%d_%H-%M-%S");
+        filename = date_stream.str();
+    }
+
     scene_objects_list world;
     // Generate one spehere in the center of the screen
-    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
+    //world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
     // Generate a spehere that acts as the 'land' in the image
-    world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
+    //world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
+    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
+    auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
+
+    world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width  = 800;
+    cam.image_width  = 400;
     cam.sample_size  = 100; // Number of samples to take for each pixel 
     cam.max_depth    = 50;  // Max number of times a ray can reflect
 
-    cam.render(world);
+    cam.render(world, filename);
+
+    return 0;
 /*
     // Debug info
     if (argc == 2) {

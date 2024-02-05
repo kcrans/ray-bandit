@@ -5,6 +5,7 @@
 
 #include "color.h"
 #include "scene_objects.h"
+#include "material.h"
 
 #ifdef __clang__
 #define STBIWDEF static inline
@@ -15,6 +16,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 //#include <cstdint>
 
 class camera {
@@ -23,12 +25,11 @@ class camera {
     int    image_width  = 100; // default width pixel count
     int    sample_size  = 10;  // number of random samples for each pixel
     int       max_depth = 10;  // max number of times a ray can bounce
-    void render(const scene_object& world) {
+    void render(const scene_object& world, const std::string& filename) {
         initialize();
         std::ofstream img_file;
-        img_file.open("./images/test1.ppm");
+        img_file.open(("images/" + filename + ".ppm").c_str());
         img_file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
         uint8_t* img_rgb = new uint8_t[image_width*image_height*3];
 
         int count = 0;
@@ -50,7 +51,7 @@ class camera {
             }
         }
 
-        stbi_write_jpg("./images/test.jpg", image_width, image_height, 3, img_rgb, 100);
+        stbi_write_jpg(("images/" + filename + ".jpg").c_str(), image_width, image_height, 3, img_rgb, 100);
         delete[] img_rgb;
         img_file.close();
         std::clog << "\rDone.                    \n";
@@ -71,7 +72,7 @@ class camera {
         
         camera_center = point3(0, 0, 0);
         
-	// Determine viewport dimensions:
+    	// Determine viewport dimensions:
         // Viewport heights and widths are real-valued
         // The aspect ratio is based off the calulated pixel aspect ratio
         auto focal_length = 1.0;
@@ -113,19 +114,26 @@ class camera {
 
     color ray_color(const ray& r, int depth, const scene_object& world) const {
         
-        // if we've exceeded the depth limit, no more light is propogated
+        // if we've exceeded the depth limit, no more light is propagated
         if (depth <= 0) 
             return color(0, 0, 0);
-        
+
         hit_record rec;
 
+        if (world.hit(r, interval(0.001, infinity), rec)) {
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth - 1, world);
+            return color(0, 0, 0);
+        }
         // if ray hits surface, calculate scattered rays
         // in order to account for round-off error, let t = 0.001
         // so the next ray's origin is not inside the object
-        if (world.hit(r, interval(0.001, infinity), rec)) {
-            vec3 direction = rec.normal + random_unit_vector();
-            return 0.80 * ray_color(ray(rec.p, direction), depth - 1,  world);
-        }
+        //if (world.hit(r, interval(0.001, infinity), rec)) {
+        //    vec3 direction = rec.normal + random_unit_vector();
+        //    return 0.80 * ray_color(ray(rec.p, direction), depth - 1,  world);
+        //}
         vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5*(unit_direction.y() + 1.0);
         return (1.0 - a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);

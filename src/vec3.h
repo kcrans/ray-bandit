@@ -49,11 +49,19 @@ class vec3 {
             return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
         }
 
-	static vec3 random() {
+        bool near_zero() const {
+            // Returns true if the vector is near (0, 0, 0)
+            // I.e. if each of its components is within some epsilon of zero
+            // Technically we are using the unifrom (sup) norm
+            auto epsilon = 1e-8;
+            return (fabs(e[0]) < epsilon) && (fabs(e[1]) < epsilon) && (fabs(e[2]) < epsilon);
+        }
+
+	    static vec3 random() {
             return vec3(random_double(), random_double(), random_double());
 	}
 
-	static vec3 random(double min, double max) {
+	    static vec3 random(double min, double max) {
             return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
 	}
 };
@@ -126,6 +134,10 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2*dot(v, n)*n;
 }
 
 #endif
