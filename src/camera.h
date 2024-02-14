@@ -112,7 +112,7 @@ class camera {
         return (rand_x * pixel_delta_u) + (rand_y * pixel_delta_v); 
     }
 
-    color ray_color(const ray& r, int depth, const scene_object& world) const {
+    color ray_color(ray& r, int depth, const scene_object& world) const /*{
         
         // if we've exceeded the depth limit, no more light is propagated
         if (depth <= 0) 
@@ -138,7 +138,36 @@ class camera {
         auto a = 0.5*(unit_direction.y() + 1.0);
         return (1.0 - a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
     }
+*/    {
+        hit_record rec;
+        color current_attenuation(1.0, 1.0, 1.0);
 
+        while (depth > 0) {
+            --depth;
+
+            if (world.hit(r, interval(0.001, infinity), rec)) {
+                ray scattered;
+                color attenuation;
+                if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+                    current_attenuation = current_attenuation * attenuation;
+                    r = scattered;
+                }
+                else {
+                    // ray absorbed by material
+                    return color(0, 0, 0);
+                }
+            }
+
+            else {
+                // ray hits sky (our light source)
+                vec3 unit_direction = unit_vector(r.direction());
+                auto a = 0.5*(unit_direction.y() + 1.0);
+                return current_attenuation*((1.0 - a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0));
+            }
+        }
+        // we've exceeded the depth limit, so no more light is propagated
+        return color(0, 0, 0);
+    }
 };
 
 #endif
