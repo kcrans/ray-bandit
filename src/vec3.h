@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "rtcommon.h"
+#include "common.h"
 
 using std::sqrt;
 

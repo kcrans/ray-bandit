@@ -1,4 +1,4 @@
-#include "rtcommon.h"
+#include "common.h"
 
 #include "camera.h"
 #include "color.h"
@@ -31,38 +31,23 @@ int main(int argc, char *argv[]) {
     //world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
     // Generate a spehere that acts as the 'land' in the image
     //world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
-    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+
+    auto material_ground = make_shared<lambertian1>(color(0.8, 0.8, 0.0), 0.0);
+    auto material_center = make_shared<lambertian1>(color(0.7, 0.3, 0.3), 0.0);
     auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
     auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
-    // Ground
     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    
-    world.add(make_shared<sphere>(point3( 0.0,    -0.3333, -1.0),   0.16, material_center));
-    world.add(make_shared<sphere>(point3(-0.5,    -0.3333, -1.0),   0.16, material_right));
-    world.add(make_shared<sphere>(point3(-1.0,    -0.3333, -1.0),   0.16, material_left));
-    world.add(make_shared<sphere>(point3( 0.5,    -0.3333, -1.0),   0.16, material_left));
-    world.add(make_shared<sphere>(point3( 1.0,    -0.3333, -1.0),   0.16, material_right));
-    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.16, material_center));
-    world.add(make_shared<sphere>(point3(-0.5,    0.0, -1.0),   0.16, material_right));
-    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.16, material_left));
-    world.add(make_shared<sphere>(point3( 0.5,    0.0, -1.0), 0.16, material_left));
-    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.16, material_right));
-    world.add(make_shared<sphere>(point3( 0.0,    0.3333, -1.0),   0.16, material_center));
-    world.add(make_shared<sphere>(point3(-0.5,    0.3333, -1.0), 0.16, material_right));
-    world.add(make_shared<sphere>(point3(-1.0,    0.3333, -1.0),   0.16, material_left));
-    world.add(make_shared<sphere>(point3( 0.5,    0.3333, -1.0), 0.16, material_left));
-    world.add(make_shared<sphere>(point3( 1.0,    0.3333, -1.0),   0.16, material_right));
-
-
+    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width  = 300;
-    cam.sample_size  = 200; // Number of samples to take for each pixel 
-    cam.max_depth    = 500;  // Max number of times a ray can reflect
+    cam.image_width  = 400;
+    cam.sample_size  = 100; // Number of samples to take for each pixel 
+    cam.max_depth    = 50;  // Max number of times a ray can reflect
 
     cam.render(world, filename);
 

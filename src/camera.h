@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "rtcommon.h"
+#include "common.h"
 
 #include "color.h"
 #include "scene_objects.h"
