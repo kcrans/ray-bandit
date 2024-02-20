@@ -13,13 +13,14 @@ class hit_record {
     vec3 normal;
     shared_ptr<material> mat;
     double t;
+    bool ray_facing_inwards;
 
     inline void set_face_normal(const ray& r, const vec3& outward_normal) {
         // Sets the hit record's normal vector
         // NOTE: the parameter `outward_normal` is assumed to have unit length
         // This let's geometry code normalize with potential optimizations
-
-        normal = dot(r.direction(), outward_normal) < 0 ? outward_normal : -outward_normal;
+        ray_facing_inwards = dot(r.direction(), outward_normal) < 0;
+        normal = ray_facing_inwards ? outward_normal : -outward_normal;
     }
 };
 

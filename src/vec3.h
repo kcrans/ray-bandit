@@ -136,8 +136,28 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
         return -on_unit_sphere;
 }
 
-vec3 reflect(const vec3& v, const vec3& n) {
+inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2*dot(v, n)*n;
+}
+
+inline vec3 refract(const vec3& v, const vec3& n, double refract_index_ratio) {
+    auto cos_theta = fmin(dot(v, -n), 1.0);
+    auto sin_theta = sqrt(1.0 - cos_theta*cos_theta);
+    
+    // Calculates reflectance coeeficents using Schlick's approximation
+    auto R0 = pow((1 - refract_index_ratio) / (1 + refract_index_ratio), 2);
+    auto R1 =  R0 + (1 - R0) * pow((1 - cos_theta), 5);
+
+    if ((sin_theta * refract_index_ratio > 1.0) || R1 > random_double()) {
+        return reflect(v, n);
+    }
+    vec3 r_perp = refract_index_ratio * (v + cos_theta*n);
+    vec3 r_para = -1 * sqrt(1.0 - r_perp.length_squared()) * n;
+    if (std::isnan(r_para.x())) {
+        std::cout << "[" <<  r_perp.length_squared() << " " << v.length_squared() << " " << (-n).length_squared() << "]" << std::endl;
+    }
+
+    return r_perp + r_para;
 }
 
 #endif

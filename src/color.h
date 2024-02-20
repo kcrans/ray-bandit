@@ -35,13 +35,14 @@ void write_color(std::ostream &out, color pixel_color, int samples_per_pixel, ui
 
     // write the translated [0, 255] value of each color component
     static const interval intensity(0.000, 0.999);
-    out << static_cast<int>(256 * intensity.clamp(r)) << ' '
-        << static_cast<int>(256 * intensity.clamp(g)) << ' '
-        << static_cast<int>(256 * intensity.clamp(b)) << '\n';
 
     rgb[0] = static_cast<uint8_t>(256 * intensity.clamp(r));
     rgb[1] = static_cast<uint8_t>(256 * intensity.clamp(g));
     rgb[2] = static_cast<uint8_t>(256 * intensity.clamp(b));
+
+    out << +rgb[0] << ' '
+        << +rgb[1] << ' '
+        << +rgb[2] << '\n';
 
 }
 
