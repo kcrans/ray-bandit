@@ -115,10 +115,20 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
-inline vec3 random_in_unit_sphere() {
-    // keep on generating random vectors untill one is in the unit sphere
+inline vec3 random_in_unit_disk() {
+    // keep on generating random vectors until one is in the unit disk
+    // on the x-y plane
     while (true) {
-        auto p = vec3::random(-1,1);
+        auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared() < 1)
+            return p;
+    } 
+}
+
+inline vec3 random_in_unit_sphere() {
+    // keep on generating random vectors until one is in the unit sphere
+    while (true) {
+        auto p = vec3::random(-1, 1);
         if (p.length_squared() < 1)
             return p;
     }

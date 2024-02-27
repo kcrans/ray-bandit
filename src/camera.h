@@ -21,10 +21,19 @@
 
 class camera {
     public:
+    // Default params:
     double aspect_ratio = 1.0; // width over height
     int    image_width  = 100; // default width pixel count
-    int    sample_size  = 10;  // number of random samples for each pixel
-    int       max_depth = 10;  // max number of times a ray can bounce
+    int    sample_size  =  10; // number of random samples for each pixel
+    int       max_depth =  10; // max number of times a ray can bounce
+    double        v_fov =  90;              // vertical field of view in degrees
+    point3    look_from = point3(0, 0, -1); // the point the camera is looking out from
+    point3      look_at = point3(0, 0, 0);  // the point the camera is looking at
+    vec3           v_up = vec3(0, 1, 0);    // the up direction relative to the camera
+    double defocus_angle = 0;               // angle of the cone with apex at viewport center and
+                                            // base at the camera center (known as the defocus disk)
+    double focus_dist = 10;                 // distance from look_from to the plane of perfect focus    
+    
     void render(const scene_object& world, const std::string& filename) {
         initialize();
         std::ofstream img_file;
@@ -63,41 +72,67 @@ class camera {
     point3 pixel00_loc;   // location of first pixel (0, 0)
     vec3 pixel_delta_u;   // offset to pixels horizontally
     vec3 pixel_delta_v;	  // offset to pixels vertically
-
+    vec3 u, v, w;         // basis vectors for camera frame
+    vec3 defocus_disk_u;  // defocus disk horizontal radius
+    vec3 defocus_disk_v;  // defocus disk vertical radius
+    
     void initialize() {
         // Calculate height from width and aspect ratio
         // height must be greater than 1 pixel
         image_height = static_cast<int>(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height; 
         
-        camera_center = point3(0, 0, 0);
+        camera_center = look_from; 
         
     	// Determine viewport dimensions:
         // Viewport heights and widths are real-valued
         // The aspect ratio is based off the calulated pixel aspect ratio
-        auto focal_length = 1.0;
-        auto viewport_height = 2.0; // Arbitrary value
+        //auto focal_length = (look_from - look_at).length();
+        auto theta = degrees_to_radians(v_fov);
+        auto h = tan(theta/2);
+        auto viewport_height = 2 * h * focus_dist;
         auto viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
 
+        // Calculate the basis vectors for the camera's coordinate frame
+        w = unit_vector(look_from - look_at); // vector pointing opposite the view direction
+        if (w.x() == 0 && w.z() == 0) {
+            v_up = w.y() > 0 ? vec3(0, 0, -1) : vec3(0, 0, 1);
+        }
+        //else {
+        //    vec3 v_up = vec3(0, 1, 0);
+        //}
+        u = unit_vector(cross(v_up, w));      // vector pointing to the camera's right
+        v = cross(w, u);                      // vector pointing to the camera's up
+
+        std::cout << "w: " << w << std::endl;
+        std::cout << "u: " << u << std::endl;
+        std::cout << "v: " << v << std::endl;
+
         // Calculate the vectors across the horizontal and down the vertical viewport edges
-        auto viewport_u = vec3(viewport_width, 0, 0);
-        auto viewport_v = vec3(0, -viewport_height, 0);
+        auto viewport_u = viewport_width * u;   // vector along the viewport's horizontal edge 
+        auto viewport_v = viewport_height * -v; // vector down the viewport's vertical edge
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel
         pixel_delta_u = viewport_u / image_width;
         pixel_delta_v = viewport_v / image_height;
 
         // Calculate the location of the upper left pixel
-        auto viewport_upper_left = camera_center - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
+        auto viewport_upper_left = camera_center - (focus_dist * w) - viewport_u/2 - viewport_v/2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+        // Calculate the defcous disk basis vectors
+        auto defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angle / 2));
+        defocus_disk_u = u * defocus_radius;
+        defocus_disk_v = v * defocus_radius;
     }
 
     ray get_ray(int i, int j) const {
         // returns a random ray for the pixel at i, j
+        // originating from the defocus disk around the camera origin
         auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
         auto pixel_sample =  pixel_center + pixel_sample_square();
 
-        auto ray_origin = camera_center;
+        auto ray_origin = (defocus_angle <= 0) ? camera_center : defocus_disk_sample();
         auto ray_direction = pixel_sample - ray_origin;
 
         return ray(ray_origin, ray_direction);
@@ -110,6 +145,13 @@ class camera {
         auto rand_y = random_double(-0.5, 0.5);
 
         return (rand_x * pixel_delta_u) + (rand_y * pixel_delta_v); 
+    }
+
+    point3 defocus_disk_sample() const {
+        
+        auto p = random_in_unit_disk();
+
+        return camera_center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
     color ray_color(ray& r, int depth, const scene_object& world) const /*{
