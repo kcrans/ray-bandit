@@ -6,7 +6,7 @@ Here's what the final render from the above book looks lke:
 
 ![A scene consisting of randomly colored and spaced spheres. There are 3 larger spheres of each material type](/images/final_render.jpg)
 
-For weird, buggy images check out the bloops directory.
+For weird, buggy images check out the `/bloopers` directory.
 
 ## Getting Started
 
